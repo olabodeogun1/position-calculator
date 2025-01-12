@@ -7,86 +7,112 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #333; /* Dark Grey */
-            color: white; /* White */
+            background-color: lightgrey;
+            color: black;
+            margin: 0;
+            padding: 20px;
         }
         .container {
             max-width: 500px;
-            margin: auto;
+            margin: 0 auto;
+            background-color: white;
             padding: 20px;
-            background-color: #f0f0f0; /* Light Grey */
-            border-radius: 10px;
-            margin-top: 50px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        input, button {
+        h1 {
+            text-align: center;
+            color: darkgrey;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: darkgrey;
+        }
+        input {
             width: 100%;
             padding: 10px;
-            margin: 10px 0;
+            border: 1px solid darkgrey;
+            border-radius: 5px;
             box-sizing: border-box;
         }
         button {
-            background-color: #4CAF50; /* Green */
-            color: white; /* White */
+            width: 100%;
+            padding: 10px;
+            background-color: lightgreen;
+            color: black;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
         }
         button:hover {
-            background-color: #45a049; /* Light Green */
+            background-color: green;
+            color: white;
         }
-        #result {
-            background-color: #000; /* Black */
-            color: white; /* White */
-            padding: 15px;
+        .result {
             margin-top: 20px;
-            border-radius: 5px;
+            background-color: lightgrey;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .result p {
+            margin: 0 0 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Forex Trading Risk Calculator</h2>
-        <label for="balance">Account Balance:</label>
-        <input type="number" id="balance" step="0.01" placeholder="Enter your account balance">
-        
-        <label for="riskPercentage">Risk Percentage:</label>
-        <input type="number" id="riskPercentage" step="0.01" placeholder="Enter risk percentage (%)">
+        <h1>Forex Trading Risk Calculator</h1>
+        <div class="form-group">
+            <label for="accountBalance">Account Balance ($)</label>
+            <input type="number" id="accountBalance" placeholder="Enter your account balance">
+        </div>
+        <div class="form-group">
+            <label for="entryPrice">Entry Price</label>
+            <input type="number" id="entryPrice" placeholder="Enter your entry price">
+        </div>
+        <div class="form-group">
+            <label for="riskPercentage">Risk Percentage (%)</label>
+            <input type="number" id="riskPercentage" placeholder="Enter the percentage you want to risk">
+        </div>
+        <div class="form-group">
+            <label for="lotSize">Lot Size</label>
+            <input type="number" id="lotSize" placeholder="Enter the lot size">
+        </div>
+        <button onclick="calculateRisk()">Calculate</button>
 
-        <label for="entry">Entry:</label>
-        <input type="number" id="entry" step="0.00001" placeholder="Enter entry price">
-
-        <label for="stopLoss">Stop Loss:</label>
-        <input type="number" id="stopLoss" step="0.00001" placeholder="Enter stop loss price">
-
-        <label for="takeProfit">Take Profit:</label>
-        <input type="number" id="takeProfit" step="0.00001" placeholder="Enter take profit price">
-
-        <label for="lotSize">Lot Size:</label>
-        <input type="number" id="lotSize" step="0.01" placeholder="Enter lot size">
-
-        <button onclick="calculateRisk()">Calculate Risk</button>
-
-        <div id="result"></div>
+        <div class="result" id="result" style="display: none;">
+            <p><strong>Risked Amount:</strong> $<span id="riskedAmount"></span></p>
+            <p><strong>Stop Loss Point:</strong> <span id="stopLossPoint"></span></p>
+            <p><strong>Number of Stop Loss Pips:</strong> <span id="stopLossPips"></span></p>
+        </div>
     </div>
 
     <script>
         function calculateRisk() {
-            const balance = parseFloat(document.getElementById('balance').value);
+            const accountBalance = parseFloat(document.getElementById('accountBalance').value);
+            const entryPrice = parseFloat(document.getElementById('entryPrice').value);
             const riskPercentage = parseFloat(document.getElementById('riskPercentage').value);
-            const entry = parseFloat(document.getElementById('entry').value);
-            const stopLoss = parseFloat(document.getElementById('stopLoss').value);
-            const takeProfit = parseFloat(document.getElementById('takeProfit').value);
             const lotSize = parseFloat(document.getElementById('lotSize').value);
 
-            if (isNaN(balance) || isNaN(riskPercentage) || isNaN(entry) || isNaN(stopLoss)) {
-                document.getElementById('result').innerText = "Please fill all required fields.";
+            if (isNaN(accountBalance) || isNaN(entryPrice) || isNaN(riskPercentage) || isNaN(lotSize)) {
+                alert('Please fill in all fields with valid numbers.');
                 return;
             }
 
-            let riskAmount = (balance * (riskPercentage / 100));
-            let pipValue = Math.abs(entry - stopLoss) * lotSize * 10; // Assuming 1 pip = 0.0001 and lotSize is in micro lots (0.01 = 1 micro lot)
-            let riskPerPip = riskAmount / pipValue;
+            const riskedAmount = (accountBalance * riskPercentage) / 100;
+            const stopLossPips = (riskedAmount / lotSize).toFixed(2);
+            const stopLossPoint = (entryPrice - (stopLossPips / 100)).toFixed(5);
 
-            document.getElementById('result').innerText = `Equivalent Amount of the Risk Percentage: $${riskAmount.toFixed(2)}`;
+            document.getElementById('riskedAmount').textContent = riskedAmount.toFixed(2);
+            document.getElementById('stopLossPoint').textContent = stopLossPoint;
+            document.getElementById('stopLossPips').textContent = stopLossPips;
+
+            document.getElementById('result').style.display = 'block';
         }
     </script>
 </body>
