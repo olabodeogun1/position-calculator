@@ -3,142 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trading Risk Calculator</title>
+    <title>Forex Trading Risk Calculator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
+            background-color: #333; /* Dark Grey */
+            color: white; /* White */
         }
         .container {
             max-width: 500px;
-            margin: 50px auto;
-            padding: 30px 25px;
-            background: #fff;
+            margin: auto;
+            padding: 20px;
+            background-color: #f0f0f0; /* Light Grey */
             border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
         }
-        h1 {
-            text-align: center;
-            color: #444;
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-        input {
+        input, button {
             width: 100%;
-            padding: 12px 15px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 14px;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
         }
         button {
-            width: 100%;
-            padding: 15px;
-            background: #007BFF;
-            color: white;
+            background-color: #4CAF50; /* Green */
+            color: white; /* White */
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
             cursor: pointer;
         }
         button:hover {
-            background: #0056b3;
+            background-color: #45a049; /* Light Green */
         }
-        .result {
-            background: #e7f3ff;
+        #result {
+            background-color: #000; /* Black */
+            color: white; /* White */
             padding: 15px;
             margin-top: 20px;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 14px;
-            color: #444;
-        }
-        @media (max-width: 600px) {
-            .container {
-                margin: 20px;
-                padding: 20px 15px;
-            }
-            h1 {
-                font-size: 20px;
-            }
-            button {
-                font-size: 14px;
-            }
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Trading Risk Calculator</h1>
-        <form id="riskForm">
-            <label for="balance">Account Balance ($):</label>
-            <input type="number" id="balance" placeholder="Enter your account balance" required>
-            
-            <label for="riskPercentage">Risk Percentage (%):</label>
-            <input type="number" id="riskPercentage" placeholder="Enter risk percentage" required>
-            
-            <label for="entry">Entry Price:</label>
-            <input type="number" id="entry" placeholder="Enter entry price" required>
-            
-            <label for="stopLoss">Stop Loss Price:</label>
-            <input type="number" id="stopLoss" placeholder="Enter stop loss price" required>
-            
-            <label for="lotSize">Lot Size:</label>
-            <input type="number" id="lotSize" step="0.01" placeholder="Enter the lot size you are using" required>
-            
-            <button type="button" onclick="calculateRisk()">Calculate</button>
-        </form>
-        <div id="result" class="result" style="display: none;"></div>
+        <h2>Forex Trading Risk Calculator</h2>
+        <label for="balance">Account Balance:</label>
+        <input type="number" id="balance" step="0.01" placeholder="Enter your account balance">
+        
+        <label for="riskPercentage">Risk Percentage:</label>
+        <input type="number" id="riskPercentage" step="0.01" placeholder="Enter risk percentage (%)">
+
+        <label for="entry">Entry:</label>
+        <input type="number" id="entry" step="0.00001" placeholder="Enter entry price">
+
+        <label for="stopLoss">Stop Loss:</label>
+        <input type="number" id="stopLoss" step="0.00001" placeholder="Enter stop loss price">
+
+        <label for="takeProfit">Take Profit:</label>
+        <input type="number" id="takeProfit" step="0.00001" placeholder="Enter take profit price">
+
+        <label for="lotSize">Lot Size:</label>
+        <input type="number" id="lotSize" step="0.01" placeholder="Enter lot size">
+
+        <button onclick="calculateRisk()">Calculate Risk</button>
+
+        <div id="result"></div>
     </div>
 
     <script>
         function calculateRisk() {
-            // Get input values
             const balance = parseFloat(document.getElementById('balance').value);
             const riskPercentage = parseFloat(document.getElementById('riskPercentage').value);
             const entry = parseFloat(document.getElementById('entry').value);
             const stopLoss = parseFloat(document.getElementById('stopLoss').value);
+            const takeProfit = parseFloat(document.getElementById('takeProfit').value);
             const lotSize = parseFloat(document.getElementById('lotSize').value);
 
-            // Validate inputs
-            if (isNaN(balance) || isNaN(riskPercentage) || isNaN(entry) || isNaN(stopLoss) || isNaN(lotSize)) {
-                alert('Please fill in all fields correctly.');
+            if (isNaN(balance) || isNaN(riskPercentage) || isNaN(entry) || isNaN(stopLoss)) {
+                document.getElementById('result').innerText = "Please fill all required fields.";
                 return;
             }
 
-            if (riskPercentage <= 0 || balance <= 0 || lotSize <= 0) {
-                alert('Risk percentage, balance, and lot size must be greater than zero.');
-                return;
-            }
+            let riskAmount = (balance * (riskPercentage / 100));
+            let pipValue = Math.abs(entry - stopLoss) * lotSize * 10; // Assuming 1 pip = 0.0001 and lotSize is in micro lots (0.01 = 1 micro lot)
+            let riskPerPip = riskAmount / pipValue;
 
-            // Calculate pip difference
-            const pipDifference = Math.abs(entry - stopLoss);
-
-            // Calculate pip value and total risk amount
-            const pipValue = lotSize * 0.0001; // Assuming 1 pip = 0.0001 for major pairs
-            const riskAmount = pipDifference * pipValue;
-
-            // Calculate allowable risk
-            const allowableRisk = (balance * riskPercentage) / 100;
-
-            // Display the results
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = `
-                <p><strong>Risk Amount:</strong> $${riskAmount.toFixed(2)}</p>
-                <p><strong>Allowable Risk:</strong> $${allowableRisk.toFixed(2)}</p>
-                <p>${riskAmount <= allowableRisk 
-                    ? '✅ Your trade is within the allowable risk limit.' 
-                    : '❌ Your trade exceeds the allowable risk limit.'}</p>
-            `;
-            resultDiv.style.display = 'block';
+            document.getElementById('result').innerText = `Equivalent Amount of the Risk Percentage: $${riskAmount.toFixed(2)}`;
         }
     </script>
 </body>
