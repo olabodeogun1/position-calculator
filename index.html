@@ -15,35 +15,38 @@
         .container {
             max-width: 500px;
             margin: 50px auto;
-            padding: 20px;
+            padding: 30px 25px;
             background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         h1 {
             text-align: center;
             color: #444;
+            margin-bottom: 20px;
         }
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: bold;
         }
         input {
             width: 100%;
-            padding: 10px;
+            padding: 12px 15px;
             margin-bottom: 20px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            font-size: 14px;
         }
         button {
             width: 100%;
-            padding: 10px;
+            padding: 15px;
             background: #007BFF;
             color: white;
             border: none;
             border-radius: 5px;
             font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
         }
         button:hover {
@@ -51,10 +54,24 @@
         }
         .result {
             background: #e7f3ff;
-            padding: 10px;
+            padding: 15px;
             margin-top: 20px;
-            border-radius: 5px;
+            border-radius: 8px;
             text-align: center;
+            font-size: 14px;
+            color: #444;
+        }
+        @media (max-width: 600px) {
+            .container {
+                margin: 20px;
+                padding: 20px 15px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            button {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
