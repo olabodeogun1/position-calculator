@@ -74,9 +74,6 @@
             <label for="stopLoss">Stop Loss Price:</label>
             <input type="number" id="stopLoss" placeholder="Enter stop loss price" required>
             
-            <label for="takeProfit">Take Profit Price:</label>
-            <input type="number" id="takeProfit" placeholder="Enter take profit price" required>
-            
             <label for="lotSize">Lot Size:</label>
             <input type="number" id="lotSize" step="0.01" placeholder="Enter the lot size you are using" required>
             
@@ -108,20 +105,21 @@
             // Calculate pip difference
             const pipDifference = Math.abs(entry - stopLoss);
 
-            // Calculate risk per pip and total risk amount
+            // Calculate pip value and total risk amount
             const pipValue = lotSize * 0.0001; // Assuming 1 pip = 0.0001 for major pairs
             const riskAmount = pipDifference * pipValue;
 
-            // Check if risk amount exceeds allowable risk
+            // Calculate allowable risk
             const allowableRisk = (balance * riskPercentage) / 100;
-            const isWithinRiskLimit = riskAmount <= allowableRisk;
 
-            // Display the result
+            // Display the results
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = `
                 <p><strong>Risk Amount:</strong> $${riskAmount.toFixed(2)}</p>
                 <p><strong>Allowable Risk:</strong> $${allowableRisk.toFixed(2)}</p>
-                <p>${isWithinRiskLimit ? '✅ Your trade is within the allowable risk.' : '❌ Your trade exceeds the allowable risk.'}</p>
+                <p>${riskAmount <= allowableRisk 
+                    ? '✅ Your trade is within the allowable risk limit.' 
+                    : '❌ Your trade exceeds the allowable risk limit.'}</p>
             `;
             resultDiv.style.display = 'block';
         }
