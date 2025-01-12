@@ -101,16 +101,25 @@
                 return;
             }
 
-            // Calculate risk amount and equivalent percentage
+            // Calculate risk amount
             const riskAmount = (balance * riskPercentage) / 100;
-            const riskPerPip = Math.abs(entry - stopLoss);
-            const lotSize = riskPerPip === 0 ? 0 : (riskAmount / riskPerPip).toFixed(2);
+
+            // Calculate pip value (assumes Forex market with 1 pip = 0.0001 for major pairs)
+            const pipDifference = Math.abs(entry - stopLoss);
+            const pipValue = 0.0001; // For major currency pairs (adjust as necessary)
+            const lotSize = pipDifference === 0 ? 0 : (riskAmount / (pipDifference / pipValue)).toFixed(2);
+
+            // Round lot size to standard Forex lot sizes
+            const roundedLotSize = Math.min(
+                Math.max(lotSize, 0.01), // Minimum lot size
+                100 // Maximum lot size for most brokers
+            ).toFixed(2);
 
             // Display the result
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = `
                 <p><strong>Risk Amount:</strong> $${riskAmount.toFixed(2)}</p>
-                <p><strong>Lot Size:</strong> ${lotSize}</p>
+                <p><strong>Lot Size:</strong> ${roundedLotSize} lots</p>
             `;
             resultDiv.style.display = 'block';
         }
