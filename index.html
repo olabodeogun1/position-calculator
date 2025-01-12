@@ -77,6 +77,9 @@
             <label for="takeProfit">Take Profit Price:</label>
             <input type="number" id="takeProfit" placeholder="Enter take profit price" required>
             
+            <label for="lotSize">Lot Size:</label>
+            <input type="number" id="lotSize" step="0.01" placeholder="Enter the lot size you are using" required>
+            
             <button type="button" onclick="calculateRisk()">Calculate</button>
         </form>
         <div id="result" class="result" style="display: none;"></div>
@@ -89,37 +92,36 @@
             const riskPercentage = parseFloat(document.getElementById('riskPercentage').value);
             const entry = parseFloat(document.getElementById('entry').value);
             const stopLoss = parseFloat(document.getElementById('stopLoss').value);
+            const lotSize = parseFloat(document.getElementById('lotSize').value);
 
             // Validate inputs
-            if (isNaN(balance) || isNaN(riskPercentage) || isNaN(entry) || isNaN(stopLoss)) {
+            if (isNaN(balance) || isNaN(riskPercentage) || isNaN(entry) || isNaN(stopLoss) || isNaN(lotSize)) {
                 alert('Please fill in all fields correctly.');
                 return;
             }
 
-            if (riskPercentage <= 0 || balance <= 0) {
-                alert('Risk percentage and balance must be greater than zero.');
+            if (riskPercentage <= 0 || balance <= 0 || lotSize <= 0) {
+                alert('Risk percentage, balance, and lot size must be greater than zero.');
                 return;
             }
 
-            // Calculate risk amount
-            const riskAmount = (balance * riskPercentage) / 100;
-
-            // Calculate pip value (assumes Forex market with 1 pip = 0.0001 for major pairs)
+            // Calculate pip difference
             const pipDifference = Math.abs(entry - stopLoss);
-            const pipValue = 0.0001; // For major currency pairs (adjust as necessary)
-            const lotSize = pipDifference === 0 ? 0 : (riskAmount / (pipDifference / pipValue)).toFixed(2);
 
-            // Round lot size to standard Forex lot sizes
-            const roundedLotSize = Math.min(
-                Math.max(lotSize, 0.01), // Minimum lot size
-                100 // Maximum lot size for most brokers
-            ).toFixed(2);
+            // Calculate risk per pip and total risk amount
+            const pipValue = lotSize * 0.0001; // Assuming 1 pip = 0.0001 for major pairs
+            const riskAmount = pipDifference * pipValue;
+
+            // Check if risk amount exceeds allowable risk
+            const allowableRisk = (balance * riskPercentage) / 100;
+            const isWithinRiskLimit = riskAmount <= allowableRisk;
 
             // Display the result
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = `
                 <p><strong>Risk Amount:</strong> $${riskAmount.toFixed(2)}</p>
-                <p><strong>Lot Size:</strong> ${roundedLotSize} lots</p>
+                <p><strong>Allowable Risk:</strong> $${allowableRisk.toFixed(2)}</p>
+                <p>${isWithinRiskLimit ? '✅ Your trade is within the allowable risk.' : '❌ Your trade exceeds the allowable risk.'}</p>
             `;
             resultDiv.style.display = 'block';
         }
