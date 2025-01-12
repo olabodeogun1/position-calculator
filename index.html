@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Risk Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #444;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            background: #e7f3ff;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Trading Risk Calculator</h1>
+        <form id="riskForm">
+            <label for="balance">Account Balance ($):</label>
+            <input type="number" id="balance" placeholder="Enter your account balance" required>
+            
+            <label for="riskPercentage">Risk Percentage (%):</label>
+            <input type="number" id="riskPercentage" placeholder="Enter risk percentage" required>
+            
+            <label for="entry">Entry Price:</label>
+            <input type="number" id="entry" placeholder="Enter entry price" required>
+            
+            <label for="stopLoss">Stop Loss Price:</label>
+            <input type="number" id="stopLoss" placeholder="Enter stop loss price" required>
+            
+            <label for="takeProfit">Take Profit Price:</label>
+            <input type="number" id="takeProfit" placeholder="Enter take profit price" required>
+            
+            <button type="button" onclick="calculateRisk()">Calculate</button>
+        </form>
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        function calculateRisk() {
+            // Get input values
+            const balance = parseFloat(document.getElementById('balance').value);
+            const riskPercentage = parseFloat(document.getElementById('riskPercentage').value);
+            const entry = parseFloat(document.getElementById('entry').value);
+            const stopLoss = parseFloat(document.getElementById('stopLoss').value);
+
+            // Validate inputs
+            if (isNaN(balance) || isNaN(riskPercentage) || isNaN(entry) || isNaN(stopLoss)) {
+                alert('Please fill in all fields correctly.');
+                return;
+            }
+
+            if (riskPercentage <= 0 || balance <= 0) {
+                alert('Risk percentage and balance must be greater than zero.');
+                return;
+            }
+
+            // Calculate risk amount and equivalent percentage
+            const riskAmount = (balance * riskPercentage) / 100;
+            const riskPerPip = Math.abs(entry - stopLoss);
+            const lotSize = riskPerPip === 0 ? 0 : (riskAmount / riskPerPip).toFixed(2);
+
+            // Display the result
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <p><strong>Risk Amount:</strong> $${riskAmount.toFixed(2)}</p>
+                <p><strong>Lot Size:</strong> ${lotSize}</p>
+            `;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
