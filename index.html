@@ -254,7 +254,7 @@
         <div class="form-group" id="commoditiesGroup" style="display: none;">
             <label for="commodities">Commodities</label>
             <select id="commodities">
-                <option value="CL-OIL">Crude Oil (CL-OIL)</option>
+                <option value="USOIL">Crude Oil (USOIL)</option>
                 <option value="NGAS">Natural Gas (NGAS)</option>
                 <option value="COFFEE">Coffee (COFFEE)</option>
             </select>
@@ -359,11 +359,6 @@
                 <span class="result-label">Risk per Pip/Point:</span>
                 <span class="result-value" id="riskPerPip">$0.00</span>
             </div>
-            
-            <div class="result-item">
-                <span class="result-label">Stop Loss Distance:</span>
-                <span class="result-value" id="stopLossDistance">0.00 price units</span>
-            </div>
         </div>
     </div>
 
@@ -423,28 +418,36 @@
             const riskAmount = (accountBalance * riskPercentage) / 100;
             
             // Determine pip size and contract size based on instrument
-            let pipSize, contractSize;
+            let pipSize, contractSize, decimalPlaces;
             
             switch(instrument) {
                 case 'forex':
+                    // Forex uses 5 decimal places with the last digit being a pipette (1/10 pip)
+                    // Actual pip is at the 4th decimal for most pairs, 2nd for JPY pairs
                     pipSize = pair.includes('JPY') ? 0.01 : 0.0001;
-                    contractSize = 100000; // Standard lot size in units of base currency
+                    contractSize = 100000;
+                    decimalPlaces = 5; // Display to 5 decimal places for forex
                     break;
                 case 'metal':
                     pipSize = pair === 'XAUUSD' ? 0.01 : 0.005;
-                    contractSize = 100; // Standard lot size in ounces
+                    contractSize = 100;
+                    decimalPlaces = pair === 'XAUUSD' ? 2 : 3;
                     break;
                 case 'crypto':
-                    pipSize = 0.00001; // Smallest unit for most cryptos
+                    pipSize = 0.00001;
                     contractSize = 1;
+                    decimalPlaces = 5;
                     break;
                 case 'indices':
-                    pipSize = 1; // Points
+                    pipSize = 1;
                     contractSize = 1;
+                    decimalPlaces = 2;
                     break;
                 case 'commodities':
-                    pipSize = 0.01; // Commodities typically use 2 decimal places
+                    // USOIL specifically uses 2 decimal places (1 pip = 0.01)
+                    pipSize = pair === 'USOIL' ? 0.01 : 0.0001;
                     contractSize = 1;
+                    decimalPlaces = pair === 'USOIL' ? 2 : 5;
                     break;
             }
             
@@ -464,10 +467,10 @@
                 pipValue = lotSize * pipSize;
             }
             
-            // Calculate maximum allowed pips/points risk
+            // Calculate maximum allowed pips risk
             const maxPipsRisk = riskAmount / pipValue;
             
-            // Calculate stop loss price
+            // Calculate stop loss price with proper pip increments
             let stopLossPrice;
             if (tradeType === 'buy') {
                 stopLossPrice = entryPrice - (maxPipsRisk * pipSize);
@@ -475,8 +478,11 @@
                 stopLossPrice = entryPrice + (maxPipsRisk * pipSize);
             }
             
+            // Round to the appropriate pip precision
+            stopLossPrice = parseFloat(stopLossPrice.toFixed(decimalPlaces));
+            
             // Update the stop loss input field
-            document.getElementById('stopLoss').value = stopLossPrice.toFixed(5);
+            document.getElementById('stopLoss').value = stopLossPrice;
             
             // Calculate pips/points difference
             const pipDifference = tradeType === 'buy' 
@@ -487,13 +493,12 @@
             document.getElementById('riskedAmount').textContent = accountCurrency + riskAmount.toFixed(2);
             document.getElementById('positionSize').textContent = lotSize.toFixed(2) + 
                 (instrument === 'forex' || instrument === 'metal' ? ' lots' : ' units');
-            document.getElementById('calculatedStopLoss').textContent = stopLossPrice.toFixed(5);
-            document.getElementById('pipsAtRisk').textContent = pipDifference.toFixed(2) + 
+            document.getElementById('calculatedStopLoss').textContent = stopLossPrice.toFixed(decimalPlaces);
+            document.getElementById('pipsAtRisk').textContent = pipDifference.toFixed(1) + 
                 (instrument === 'forex' ? ' pips' : 
                  instrument === 'metal' ? ' points' : 
                  instrument === 'crypto' ? ' units' : ' points');
             document.getElementById('riskPerPip').textContent = accountCurrency + (riskAmount / pipDifference).toFixed(2);
-            document.getElementById('stopLossDistance').textContent = (maxPipsRisk * pipSize).toFixed(5) + ' price units';
             
             // Show results
             document.getElementById('result').style.display = 'block';
