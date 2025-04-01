@@ -417,16 +417,14 @@
             // Calculate risk amount in account currency
             const riskAmount = (accountBalance * riskPercentage) / 100;
             
-            // Determine pip size and contract size based on instrument
+            // Determine pip size, contract size, and decimal places based on instrument
             let pipSize, contractSize, decimalPlaces;
             
             switch(instrument) {
                 case 'forex':
-                    // Forex uses 5 decimal places with the last digit being a pipette (1/10 pip)
-                    // Actual pip is at the 4th decimal for most pairs, 2nd for JPY pairs
                     pipSize = pair.includes('JPY') ? 0.01 : 0.0001;
                     contractSize = 100000;
-                    decimalPlaces = 5; // Display to 5 decimal places for forex
+                    decimalPlaces = 5;
                     break;
                 case 'metal':
                     pipSize = pair === 'XAUUSD' ? 0.01 : 0.005;
@@ -444,10 +442,16 @@
                     decimalPlaces = 2;
                     break;
                 case 'commodities':
-                    // USOIL specifically uses 2 decimal places (1 pip = 0.01)
-                    pipSize = pair === 'USOIL' ? 0.01 : 0.0001;
-                    contractSize = 1;
-                    decimalPlaces = pair === 'USOIL' ? 2 : 5;
+                    // Special handling for USOIL (2 decimal places, 1 pip = 0.01)
+                    if (pair === 'USOIL') {
+                        pipSize = 0.01;
+                        contractSize = 1000; // USOIL is typically traded in 1000 barrel lots
+                        decimalPlaces = 2;
+                    } else {
+                        pipSize = 0.0001;
+                        contractSize = 1;
+                        decimalPlaces = 5;
+                    }
                     break;
             }
             
@@ -459,10 +463,12 @@
                     pipValue = lotSize * contractSize * pipSize;
                 } else {
                     // For demo, we'll assume 1:1 exchange rate
-                    // In real app, you'd need current exchange rates
                     alert('Note: For accurate calculations when account currency differs from pair currency, current exchange rates are needed.');
                     pipValue = lotSize * contractSize * pipSize;
                 }
+            } else if (instrument === 'commodities' && pair === 'USOIL') {
+                // Special calculation for USOIL
+                pipValue = lotSize * contractSize * pipSize;
             } else {
                 pipValue = lotSize * pipSize;
             }
@@ -478,7 +484,7 @@
                 stopLossPrice = entryPrice + (maxPipsRisk * pipSize);
             }
             
-            // Round to the appropriate pip precision
+            // Round to the appropriate decimal places
             stopLossPrice = parseFloat(stopLossPrice.toFixed(decimalPlaces));
             
             // Update the stop loss input field
@@ -492,7 +498,7 @@
             // Display results
             document.getElementById('riskedAmount').textContent = accountCurrency + riskAmount.toFixed(2);
             document.getElementById('positionSize').textContent = lotSize.toFixed(2) + 
-                (instrument === 'forex' || instrument === 'metal' ? ' lots' : ' units');
+                (instrument === 'forex' || instrument === 'metal' || (instrument === 'commodities' && pair === 'USOIL') ? ' lots' : ' units');
             document.getElementById('calculatedStopLoss').textContent = stopLossPrice.toFixed(decimalPlaces);
             document.getElementById('pipsAtRisk').textContent = pipDifference.toFixed(1) + 
                 (instrument === 'forex' ? ' pips' : 
