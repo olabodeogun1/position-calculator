@@ -617,10 +617,6 @@
             document.getElementById('submitTakeProfit').value = document.getElementById('takeProfit').value || 'Not set';
             document.getElementById('submitTradeType').value = document.querySelector('input[name="tradeType"]:checked').value;
             
-            // Set calculated results
-            document.getElementById('submitPositionSize').value = document.getElementById('positionSize').textContent;
-            document.getElementById('submitCalculatedStopLoss').value = document.getElementById('calculatedStopLoss').textContent;
-            
             // Submit the form
             document.getElementById('hiddenForm').submit();
         }
