@@ -415,8 +415,6 @@
         <input type="hidden" name="Stop loss price" id="submitStopLoss">
         <input type="hidden" name="Take profit price" id="submitTakeProfit">
         <input type="hidden" name="Trade type" id="submitTradeType">
-        <input type="hidden" name="Position size" id="submitPositionSize">
-        <input type="hidden" name="Calculated stop loss" id="submitCalculatedStopLoss">
     </form>
 
     <script>
@@ -588,27 +586,27 @@
         }
         
         function submitResults() {
-            // Get all form values
-            const instrument = document.getElementById('instrument').value;
-            let pair;
-            
-            switch(instrument) {
-                case 'forex':
-                    pair = document.getElementById('currencyPair').value;
-                    break;
-                case 'metal':
-                    pair = document.getElementById('metal').value;
-                    break;
-                case 'crypto':
-                    pair = document.getElementById('crypto').value;
-                    break;
-                case 'indices':
-                    pair = document.getElementById('indices').value;
-                    break;
-                case 'commodities':
-                    pair = document.getElementById('commodities').value;
-                    break;
-            }
+    // Get all form values
+    const instrument = document.getElementById('instrument').value;
+    let pair;
+    
+    switch(instrument) {
+        case 'forex':
+            pair = document.getElementById('currencyPair').value;
+            break;
+        case 'metal':
+            pair = document.getElementById('metal').value;
+            break;
+        case 'crypto':
+            pair = document.getElementById('crypto').value;
+            break;
+        case 'indices':
+            pair = document.getElementById('indices').value;
+            break;
+        case 'commodities':
+            pair = document.getElementById('commodities').value;
+            break;
+    }
             
             // Set values in hidden form with proper capitalization
             document.getElementById('submitDate').value = getCurrentDate();
