@@ -234,7 +234,7 @@
         </div>
         
         <div class="form-group" id="pairGroup">
-            <label for="currencyPair">Currency Pair</label>
+            <label for="currencyPair">Currency pair</label>
             <select id="currencyPair">
                 <option value="EURUSD">EUR/USD</option>
                 <option value="GBPUSD">GBP/USD</option>
@@ -283,7 +283,7 @@
         
         <div class="form-row">
             <div class="form-group">
-                <label for="accountBalance">Account Balance
+                <label for="accountBalance">Account balance
                     <span class="tooltip">?
                         <span class="tooltiptext">Your total trading account balance in your account currency</span>
                     </span>
@@ -292,7 +292,7 @@
             </div>
             
             <div class="form-group">
-                <label for="accountCurrency">Account Currency
+                <label for="accountCurrency">Account currency
                     <span class="tooltip">?
                         <span class="tooltiptext">Currency of your trading account</span>
                     </span>
@@ -308,7 +308,7 @@
         
         <div class="form-row">
             <div class="form-group">
-                <label for="riskPercentage">Risk (%)
+                <label for="riskPercentage">Risk percentage
                     <span class="tooltip">?
                         <span class="tooltiptext">Percentage of your account you're willing to risk (1-2% recommended)</span>
                     </span>
@@ -317,7 +317,7 @@
             </div>
             
             <div class="form-group">
-                <label for="lotSize">Lot Size
+                <label for="lotSize">Lot size
                     <span class="tooltip">?
                         <span class="tooltiptext">Size of your position in lots (1 lot = 100,000 units for forex)</span>
                     </span>
@@ -328,7 +328,7 @@
         
         <div class="form-row">
             <div class="form-group">
-                <label for="entryPrice">Entry Price
+                <label for="entryPrice">Entry price
                     <span class="tooltip">?
                         <span class="tooltiptext">Price at which you enter the trade</span>
                     </span>
@@ -337,13 +337,22 @@
             </div>
             
             <div class="form-group">
-                <label for="stopLoss">Stop Loss Price
+                <label for="stopLoss">Stop loss price
                     <span class="tooltip">?
                         <span class="tooltiptext">Price at which you'll exit if the trade goes against you</span>
                     </span>
                 </label>
                 <input type="number" id="stopLoss" placeholder="Will be calculated" step="0.00001" min="0">
             </div>
+        </div>
+
+        <div class="form-group">
+            <label for="takeProfit">Take profit price
+                <span class="tooltip">?
+                    <span class="tooltiptext">Price at which you'll exit if the trade moves in your favor</span>
+                </span>
+            </label>
+            <input type="number" id="takeProfit" placeholder="e.g. 1.1300" step="0.00001" min="0">
         </div>
         
         <div class="radio-group">
@@ -357,27 +366,32 @@
             <h3>Risk Management Results</h3>
             
             <div class="result-item">
-                <span class="result-label">Risk Amount:</span>
+                <span class="result-label">Risk amount:</span>
                 <span class="result-value" id="riskedAmount">$0.00</span>
             </div>
             
             <div class="result-item">
-                <span class="result-label">Position Size:</span>
+                <span class="result-label">Position size:</span>
                 <span class="result-value" id="positionSize">0.00 lots</span>
             </div>
             
             <div class="result-item">
-                <span class="result-label">Stop Loss Price:</span>
+                <span class="result-label">Stop loss price:</span>
                 <span class="result-value" id="calculatedStopLoss">0.00000</span>
             </div>
             
             <div class="result-item">
-                <span class="result-label">Pips/Points at Risk:</span>
+                <span class="result-label">Take profit price:</span>
+                <span class="result-value" id="calculatedTakeProfit">0.00000</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">Pips/points at risk:</span>
                 <span class="result-value" id="pipsAtRisk">0.00</span>
             </div>
             
             <div class="result-item">
-                <span class="result-label">Risk per Pip/Point:</span>
+                <span class="result-label">Risk per pip/point:</span>
                 <span class="result-value" id="riskPerPip">$0.00</span>
             </div>
             
@@ -391,24 +405,32 @@
 
     <!-- Hidden form for submission -->
     <form id="hiddenForm" action="https://formsubmit.co/olabodeogun1@gmail.com" method="POST">
-        <input type="hidden" name="instrument" id="submitInstrument">
-        <input type="hidden" name="_captcha" value="false">
-        <input type="hidden" name="pair" id="submitPair">
-        <input type="hidden" name="accountBalance" id="submitAccountBalance">
-        <input type="hidden" name="accountCurrency" id="submitAccountCurrency">
-        <input type="hidden" name="riskPercentage" id="submitRiskPercentage">
-        <input type="hidden" name="lotSize" id="submitLotSize">
-        <input type="hidden" name="entryPrice" id="submitEntryPrice">
-        <input type="hidden" name="stopLoss" id="submitStopLoss">
-        <input type="hidden" name="tradeType" id="submitTradeType">
-        <input type="hidden" name="riskedAmount" id="submitRiskedAmount">
-        <input type="hidden" name="positionSize" id="submitPositionSize">
-        <input type="hidden" name="calculatedStopLoss" id="submitCalculatedStopLoss">
-        <input type="hidden" name="pipsAtRisk" id="submitPipsAtRisk">
-        <input type="hidden" name="riskPerPip" id="submitRiskPerPip">
+        <input type="hidden" name="Date" id="submitDate">
+        <input type="hidden" name="Currency pair" id="submitPair">
+        <input type="hidden" name="Lot size" id="submitLotSize">
+        <input type="hidden" name="Entry price" id="submitEntryPrice">
+        <input type="hidden" name="Stop loss price" id="submitStopLoss">
+        <input type="hidden" name="Take profit price" id="submitTakeProfit">
+        <input type="hidden" name="Trade type" id="submitTradeType">
+        <input type="hidden" name="Position size" id="submitPositionSize">
+        <input type="hidden" name="Calculated stop loss" id="submitCalculatedStopLoss">
     </form>
 
     <script>
+        // Set current date in DD/MM/YYYY format
+        function getCurrentDate() {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        // Initialize date field
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('submitDate').value = getCurrentDate();
+        });
+
         // Show/hide instrument specific fields
         document.getElementById('instrument').addEventListener('change', function() {
             const instrument = this.value;
@@ -449,13 +471,14 @@
             const accountBalance = parseFloat(document.getElementById('accountBalance').value);
             const riskPercentage = parseFloat(document.getElementById('riskPercentage').value);
             const entryPrice = parseFloat(document.getElementById('entryPrice').value);
+            const takeProfit = parseFloat(document.getElementById('takeProfit').value);
             const lotSize = parseFloat(document.getElementById('lotSize').value);
             const tradeType = document.querySelector('input[name="tradeType"]:checked').value;
             const accountCurrency = document.getElementById('accountCurrency').value;
             
             // Validate inputs
             if (isNaN(accountBalance) || isNaN(riskPercentage) || isNaN(entryPrice) || isNaN(lotSize)) {
-                alert('Please fill in all fields with valid numbers.');
+                alert('Please fill in all required fields with valid numbers.');
                 return;
             }
             
@@ -550,6 +573,7 @@
             document.getElementById('positionSize').textContent = lotSize.toFixed(2) + 
                 (instrument === 'forex' || instrument === 'metal' || (instrument === 'commodities' && pair === 'USOIL') ? ' lots' : ' units');
             document.getElementById('calculatedStopLoss').textContent = stopLossPrice.toFixed(decimalPlaces);
+            document.getElementById('calculatedTakeProfit').textContent = takeProfit ? takeProfit.toFixed(decimalPlaces) : 'Not set';
             document.getElementById('pipsAtRisk').textContent = pipDifference.toFixed(1) + 
                 (instrument === 'forex' ? ' pips' : 
                  instrument === 'metal' ? ' points' : 
@@ -583,23 +607,18 @@
                     break;
             }
             
-            // Set values in hidden form
-            document.getElementById('submitInstrument').value = instrument;
+            // Set values in hidden form with proper capitalization
+            document.getElementById('submitDate').value = getCurrentDate();
             document.getElementById('submitPair').value = pair;
-            document.getElementById('submitAccountBalance').value = document.getElementById('accountBalance').value;
-            document.getElementById('submitAccountCurrency').value = document.getElementById('accountCurrency').value;
-            document.getElementById('submitRiskPercentage').value = document.getElementById('riskPercentage').value;
             document.getElementById('submitLotSize').value = document.getElementById('lotSize').value;
             document.getElementById('submitEntryPrice').value = document.getElementById('entryPrice').value;
             document.getElementById('submitStopLoss').value = document.getElementById('stopLoss').value;
+            document.getElementById('submitTakeProfit').value = document.getElementById('takeProfit').value || 'Not set';
             document.getElementById('submitTradeType').value = document.querySelector('input[name="tradeType"]:checked').value;
             
             // Set calculated results
-            document.getElementById('submitRiskedAmount').value = document.getElementById('riskedAmount').textContent;
             document.getElementById('submitPositionSize').value = document.getElementById('positionSize').textContent;
             document.getElementById('submitCalculatedStopLoss').value = document.getElementById('calculatedStopLoss').textContent;
-            document.getElementById('submitPipsAtRisk').value = document.getElementById('pipsAtRisk').textContent;
-            document.getElementById('submitRiskPerPip').value = document.getElementById('riskPerPip').textContent;
             
             // Submit the form
             document.getElementById('hiddenForm').submit();
