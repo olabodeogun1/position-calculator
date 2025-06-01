@@ -1,117 +1,625 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Submit Trade to Google Sheet</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
-    form { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    label { display: block; margin-top: 15px; font-weight: bold; }
-    input, select, button {
-      width: 100%; padding: 10px; margin-top: 5px;
-      border-radius: 4px; border: 1px solid #ccc;
-    }
-    button {
-      background-color: #2ecc71; color: white; font-weight: bold;
-      border: none; cursor: pointer; margin-top: 20px;
-    }
-    button:hover {
-      background-color: #27ae60;
-    }
-    .message {
-      margin-top: 20px;
-      text-align: center;
-      font-weight: bold;
-    }
-    .error {
-      color: #e74c3c;
-    }
-    .success {
-      color: #2ecc71;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FX Risk Calculator - Calculate proper stop loss levels and position sizing for forex, metals, cryptocurrencies, indices and commodities trading">
+    <title>FX Risk Calculator - Proper Position Sizing & Stop Loss Calculation</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233498db'><path d='M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2m0 2v4h10V4H7m0 6v2h2v-2H7m4 0v2h2v-2h-2m4 0v2h2v-2h-2m-8 4v2h2v-2H7m4 0v2h2v-2h-2m4 0v2h2v-2h-2m-8 4v2h2v-2H7m4 0v2h2v-2h-2m4 0v2h2v-2h-2z'/></svg>">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 15px;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #219653;
+        }
+        
+        .submit-btn {
+            background-color: var(--secondary-color);
+        }
+        
+        .submit-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .result {
+            margin-top: 25px;
+            background-color: var(--light-color);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary-color);
+            display: none;
+        }
+        
+        .result h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .result-value {
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+        
+        .radio-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .radio-group label {
+            font-weight: normal;
+            margin: 0;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .radio-group input[type="radio"] {
+            width: auto;
+            margin: 0;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+            cursor: help;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark-color);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 13px;
+            font-weight: normal;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .warning {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+        
+        @media (max-width: 480px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        #hiddenForm {
+            display: none;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>FX Risk Calculator</h1>
+        
+        <div class="form-group">
+            <label for="instrument">Instrument</label>
+            <select id="instrument">
+                <option value="forex">Forex Pair</option>
+                <option value="metal">Metal (XAU, XAG)</option>
+                <option value="crypto">Cryptocurrency</option>
+                <option value="indices">Indices</option>
+                <option value="commodities">Commodities</option>
+            </select>
+        </div>
+        
+        <div class="form-group" id="pairGroup">
+            <label for="currencyPair">Currency pair</label>
+            <select id="currencyPair">
+                <option value="EURUSD">EUR/USD</option>
+                <option value="GBPUSD">GBP/USD</option>
+                <option value="USDJPY">USD/JPY</option>
+                <option value="AUDUSD">AUD/USD</option>
+                <option value="USDCAD">USD/CAD</option>
+                <option value="USDCHF">USD/CHF</option>
+                <option value="NZDUSD">NZD/USD</option>
+            </select>
+        </div>
+        
+        <div class="form-group" id="metalGroup" style="display: none;">
+            <label for="metal">Metal</label>
+            <select id="metal">
+                <option value="XAUUSD">Gold (XAU/USD)</option>
+                <option value="XAGUSD">Silver (XAG/USD)</option>
+            </select>
+        </div>
+        
+        <div class="form-group" id="cryptoGroup" style="display: none;">
+            <label for="crypto">Cryptocurrency</label>
+            <select id="crypto">
+                <option value="BTCUSD">Bitcoin (BTC/USD)</option>
+                <option value="ETHUSD">Ethereum (ETH/USD)</option>
+                <option value="XRPUSD">Ripple (XRP/USD)</option>
+            </select>
+        </div>
+        
+        <div class="form-group" id="indicesGroup" style="display: none;">
+            <label for="indices">Indices</label>
+            <select id="indices">
+                <option value="US30">Dow Jones (US30)</option>
+                <option value="SPX500">S&P 500 (SPX500)</option>
+                <option value="NAS100">Nasdaq 100 (NAS100)</option>
+            </select>
+        </div>
+        
+        <div class="form-group" id="commoditiesGroup" style="display: none;">
+            <label for="commodities">Commodities</label>
+            <select id="commodities">
+                <option value="USOIL">Crude Oil (USOIL)</option>
+                <option value="NGAS">Natural Gas (NGAS)</option>
+                <option value="COFFEE">Coffee (COFFEE)</option>
+            </select>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="accountBalance">Account balance
+                    <span class="tooltip">?
+                        <span class="tooltiptext">Your total trading account balance in your account currency</span>
+                    </span>
+                </label>
+                <input type="number" id="accountBalance" placeholder="e.g. 10000" step="0.01" min="0" value="10000">
+            </div>
+            
+            <div class="form-group">
+                <label for="accountCurrency">Account currency
+                    <span class="tooltip">?
+                        <span class="tooltiptext">Currency of your trading account</span>
+                    </span>
+                </label>
+                <select id="accountCurrency">
+                    <option value="$">USD ($)</option>
+                    <option value="€">EUR (€)</option>
+                    <option value="£">GBP (£)</option>
+                    <option value="¥">JPY (¥)</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="riskPercentage">Risk percentage
+                    <span class="tooltip">?
+                        <span class="tooltiptext">Percentage of your account you're willing to risk (1-2% recommended)</span>
+                    </span>
+                </label>
+                <input type="number" id="riskPercentage" placeholder="e.g. 1" step="0.01" min="0.01" max="100" value="1">
+            </div>
+            
+            <div class="form-group">
+                <label for="lotSize">Lot size
+                    <span class="tooltip">?
+                        <span class="tooltiptext">Size of your position in lots (1 lot = 100,000 units for forex)</span>
+                    </span>
+                </label>
+                <input type="number" id="lotSize" placeholder="e.g. 0.1" step="0.01" min="0.01" value="0.1">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="entryPrice">Entry price
+                    <span class="tooltip">?
+                        <span class="tooltiptext">Price at which you enter the trade</span>
+                    </span>
+                </label>
+                <input type="number" id="entryPrice" placeholder="e.g. 1.1200" step="0.00001" min="0" value="1.1200">
+            </div>
+            
+            <div class="form-group">
+                <label for="stopLoss">Stop loss price
+                    <span class="tooltip">?
+                        <span class="tooltiptext">Price at which you'll exit if the trade goes against you</span>
+                    </span>
+                </label>
+                <input type="number" id="stopLoss" placeholder="Will be calculated" step="0.00001" min="0">
+            </div>
+        </div>
 
-  <form id="tradeForm">
-    <h2>Submit Trade Data</h2>
+        <div class="form-group">
+            <label for="takeProfit">Take profit price
+                <span class="tooltip">?
+                    <span class="tooltiptext">Price at which you'll exit if the trade moves in your favor</span>
+                </span>
+            </label>
+            <input type="number" id="takeProfit" placeholder="e.g. 1.1300" step="0.00001" min="0">
+        </div>
+        
+        <div class="radio-group">
+            <label><input type="radio" name="tradeType" value="buy" checked> Buy (Long)</label>
+            <label><input type="radio" name="tradeType" value="sell"> Sell (Short)</label>
+        </div>
+        
+        <button onclick="calculateRisk()">Calculate Stop Loss</button>
 
-    <label for="pair">Currency Pair</label>
-    <input type="text" name="pair" id="pair" required value="EURUSD">
+        <div class="result" id="result">
+            <h3>Risk Management Results</h3>
+            
+            <div class="result-item">
+                <span class="result-label">Risk amount:</span>
+                <span class="result-value" id="riskedAmount">$0.00</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">Position size:</span>
+                <span class="result-value" id="positionSize">0.00 lots</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">Stop loss price:</span>
+                <span class="result-value" id="calculatedStopLoss">0.00000</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">Take profit price:</span>
+                <span class="result-value" id="calculatedTakeProfit">0.00000</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">Pips/points at risk:</span>
+                <span class="result-value" id="pipsAtRisk">0.00</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">Risk per pip/point:</span>
+                <span class="result-value" id="riskPerPip">$0.00</span>
+            </div>
+            
+            <button class="submit-btn" onclick="submitResults()">Submit Results</button>
+        </div>
+        
+        <footer>
+            FX Risk Calculator - Proper position sizing and stop loss calculation for traders
+        </footer>
+    </div>
 
-    <label for="lotSize">Lot Size</label>
-    <input type="number" step="0.01" name="lotSize" id="lotSize" required value="0.1">
+    <!-- Hidden form for submission -->
+    <form id="hiddenForm" action="https://formsubmit.co/olabodeogun1@gmail.com" method="POST">
+        <input type="hidden" name="Date" id="submitDate">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_next" value="https://olabodeogun1.github.io/position-calculator">
+        <input type="hidden" name="Currency pair" id="submitPair">
+        <input type="hidden" name="Lot size" id="submitLotSize">
+        <input type="hidden" name="Entry price" id="submitEntryPrice">
+        <input type="hidden" name="Stop loss price" id="submitStopLoss">
+        <input type="hidden" name="Take profit price" id="submitTakeProfit">
+        <input type="hidden" name="Trade type" id="submitTradeType">
+    </form>
 
-    <label for="entryPrice">Entry Price</label>
-    <input type="number" step="0.00001" name="entryPrice" id="entryPrice" required value="1.0850">
-
-    <label for="stopLossPrice">Stop Loss</label>
-    <input type="number" step="0.00001" name="stopLossPrice" id="stopLossPrice" required value="1.0800">
-
-    <label for="takeProfitPrice">Take Profit</label>
-    <input type="number" step="0.00001" name="takeProfitPrice" id="takeProfitPrice" value="1.0950">
-
-    <label for="tradeType">Trade Type</label>
-    <select name="tradeType" id="tradeType">
-      <option value="BUY">Buy</option>
-      <option value="SELL">Sell</option>
-    </select>
-
-    <button type="submit">Submit</button>
-    <div class="message" id="confirmationMessage"></div>
-  </form>
-
-  <script>
-    document.getElementById('tradeForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      const messageElement = document.getElementById('confirmationMessage');
-      messageElement.textContent = "Submitting...";
-      messageElement.className = "message";
-      
-      try {
-        // Prepare form data
-        const formData = {
-          pair: document.getElementById('pair').value,
-          lotSize: document.getElementById('lotSize').value,
-          entryPrice: document.getElementById('entryPrice').value,
-          stopLossPrice: document.getElementById('stopLossPrice').value,
-          takeProfitPrice: document.getElementById('takeProfitPrice').value || '',
-          tradeType: document.getElementById('tradeType').value
-        };
-
-        // Add timestamp to URL to prevent caching
-        const url = new URL("https://script.google.com/macros/s/AKfycbyL-Q3VRlWjyCw8cn96gmNZocq26Du12KKsAUvWVipONIct-DIPwxxwmZpruZgIFw_z/exec");
-        url.searchParams.append('t', Date.now());
-
-        // Append form data to URL as parameters
-        for (const key in formData) {
-          url.searchParams.append(key, formData[key]);
+    <script>
+        // Set current date in DD/MM/YYYY format
+        function getCurrentDate() {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            return `${day}/${month}/${year}`;
         }
 
-        // Submit the data
-        const response = await fetch(url, {
-          method: 'POST',
-          redirect: 'follow'
+        // Initialize date field
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('submitDate').value = getCurrentDate();
         });
 
-        const result = await response.text();
+        // Show/hide instrument specific fields
+        document.getElementById('instrument').addEventListener('change', function() {
+            const instrument = this.value;
+            document.getElementById('pairGroup').style.display = instrument === 'forex' ? 'block' : 'none';
+            document.getElementById('metalGroup').style.display = instrument === 'metal' ? 'block' : 'none';
+            document.getElementById('cryptoGroup').style.display = instrument === 'crypto' ? 'block' : 'none';
+            document.getElementById('indicesGroup').style.display = instrument === 'indices' ? 'block' : 'none';
+            document.getElementById('commoditiesGroup').style.display = instrument === 'commodities' ? 'block' : 'none';
+            
+            // Reset stop loss when instrument changes
+            document.getElementById('stopLoss').value = '';
+            document.getElementById('result').style.display = 'none';
+        });
         
-        if (result.includes("Success")) {
-          messageElement.textContent = "✅ Form submitted successfully!";
-          messageElement.className = "message success";
-          document.getElementById("tradeForm").reset();
-        } else {
-          messageElement.textContent = "⚠️ Submission completed but no data received";
-          messageElement.className = "message error";
+        function calculateRisk() {
+            // Get input values
+            const instrument = document.getElementById('instrument').value;
+            let pair;
+            
+            switch(instrument) {
+                case 'forex':
+                    pair = document.getElementById('currencyPair').value;
+                    break;
+                case 'metal':
+                    pair = document.getElementById('metal').value;
+                    break;
+                case 'crypto':
+                    pair = document.getElementById('crypto').value;
+                    break;
+                case 'indices':
+                    pair = document.getElementById('indices').value;
+                    break;
+                case 'commodities':
+                    pair = document.getElementById('commodities').value;
+                    break;
+            }
+            
+            const accountBalance = parseFloat(document.getElementById('accountBalance').value);
+            const riskPercentage = parseFloat(document.getElementById('riskPercentage').value);
+            const entryPrice = parseFloat(document.getElementById('entryPrice').value);
+            const takeProfit = parseFloat(document.getElementById('takeProfit').value);
+            const lotSize = parseFloat(document.getElementById('lotSize').value);
+            const tradeType = document.querySelector('input[name="tradeType"]:checked').value;
+            const accountCurrency = document.getElementById('accountCurrency').value;
+            
+            // Validate inputs
+            if (isNaN(accountBalance) || isNaN(riskPercentage) || isNaN(entryPrice) || isNaN(lotSize)) {
+                alert('Please fill in all required fields with valid numbers.');
+                return;
+            }
+            
+            if (entryPrice <= 0 || lotSize <= 0) {
+                alert('Prices and lot size must be greater than zero.');
+                return;
+            }
+            
+            // Calculate risk amount in account currency
+            const riskAmount = (accountBalance * riskPercentage) / 100;
+            
+            // Determine pip size, contract size, and decimal places based on instrument
+            let pipSize, contractSize, decimalPlaces;
+            
+            switch(instrument) {
+                case 'forex':
+                    pipSize = pair.includes('JPY') ? 0.01 : 0.0001;
+                    contractSize = 100000;
+                    decimalPlaces = 5;
+                    break;
+                case 'metal':
+                    pipSize = pair === 'XAUUSD' ? 0.01 : 0.005;
+                    contractSize = 100;
+                    decimalPlaces = pair === 'XAUUSD' ? 2 : 3;
+                    break;
+                case 'crypto':
+                    pipSize = 0.00001;
+                    contractSize = 1;
+                    decimalPlaces = 5;
+                    break;
+                case 'indices':
+                    pipSize = 1;
+                    contractSize = 1;
+                    decimalPlaces = 2;
+                    break;
+                case 'commodities':
+                    // Special handling for USOIL (2 decimal places, 1 pip = 0.01)
+                    if (pair === 'USOIL') {
+                        pipSize = 0.01;
+                        contractSize = 1000; // USOIL is typically traded in 1000 barrel lots
+                        decimalPlaces = 2;
+                    } else {
+                        pipSize = 0.0001;
+                        contractSize = 1;
+                        decimalPlaces = 5;
+                    }
+                    break;
+            }
+            
+            // Calculate the value per pip
+            let pipValue;
+            if (instrument === 'forex') {
+                const quoteCurrency = pair.substring(3);
+                if (accountCurrency === '$' && quoteCurrency === 'USD') {
+                    pipValue = lotSize * contractSize * pipSize;
+                } else {
+                    // For demo, we'll assume 1:1 exchange rate
+                    alert('Note: For accurate calculations when account currency differs from pair currency, current exchange rates are needed.');
+                    pipValue = lotSize * contractSize * pipSize;
+                }
+            } else if (instrument === 'commodities' && pair === 'USOIL') {
+                // Special calculation for USOIL
+                pipValue = lotSize * contractSize * pipSize;
+            } else {
+                pipValue = lotSize * pipSize;
+            }
+            
+            // Calculate maximum allowed pips risk
+            const maxPipsRisk = riskAmount / pipValue;
+            
+            // Calculate stop loss price with proper pip increments
+            let stopLossPrice;
+            if (tradeType === 'buy') {
+                stopLossPrice = entryPrice - (maxPipsRisk * pipSize);
+            } else { // sell
+                stopLossPrice = entryPrice + (maxPipsRisk * pipSize);
+            }
+            
+            // Round to the appropriate decimal places
+            stopLossPrice = parseFloat(stopLossPrice.toFixed(decimalPlaces));
+            
+            // Update the stop loss input field
+            document.getElementById('stopLoss').value = stopLossPrice;
+            
+            // Calculate pips/points difference
+            const pipDifference = tradeType === 'buy' 
+                ? (entryPrice - stopLossPrice) / pipSize
+                : (stopLossPrice - entryPrice) / pipSize;
+            
+            // Display results
+            document.getElementById('riskedAmount').textContent = accountCurrency + riskAmount.toFixed(2);
+            document.getElementById('positionSize').textContent = lotSize.toFixed(2) + 
+                (instrument === 'forex' || instrument === 'metal' || (instrument === 'commodities' && pair === 'USOIL') ? ' lots' : ' units');
+            document.getElementById('calculatedStopLoss').textContent = stopLossPrice.toFixed(decimalPlaces);
+            document.getElementById('calculatedTakeProfit').textContent = takeProfit ? takeProfit.toFixed(decimalPlaces) : 'Not set';
+            document.getElementById('pipsAtRisk').textContent = pipDifference.toFixed(1) + 
+                (instrument === 'forex' ? ' pips' : 
+                 instrument === 'metal' ? ' points' : 
+                 instrument === 'crypto' ? ' units' : ' points');
+            document.getElementById('riskPerPip').textContent = accountCurrency + (riskAmount / pipDifference).toFixed(2);
+            
+            // Show results
+            document.getElementById('result').style.display = 'block';
         }
-      } catch (error) {
-        messageElement.textContent = `❌ Error: ${error.message}`;
-        messageElement.className = "message error";
-        console.error("Submission error:", error);
-      }
-    });
-  </script>
-
+        
+        function submitResults() {
+            // Get all form values
+            const instrument = document.getElementById('instrument').value;
+            let pair;
+            
+            switch(instrument) {
+                case 'forex':
+                    pair = document.getElementById('currencyPair').value;
+                    break;
+                case 'metal':
+                    pair = document.getElementById('metal').value;
+                    break;
+                case 'crypto':
+                    pair = document.getElementById('crypto').value;
+                    break;
+                case 'indices':
+                    pair = document.getElementById('indices').value;
+                    break;
+                case 'commodities':
+                    pair = document.getElementById('commodities').value;
+                    break;
+            }
+            
+            // Set values in hidden form with proper capitalization
+            document.getElementById('submitDate').value = getCurrentDate();
+            document.getElementById('submitPair').value = pair;
+            document.getElementById('submitLotSize').value = document.getElementById('lotSize').value;
+            document.getElementById('submitEntryPrice').value = document.getElementById('entryPrice').value;
+            document.getElementById('submitStopLoss').value = document.getElementById('stopLoss').value;
+            document.getElementById('submitTakeProfit').value = document.getElementById('takeProfit').value || 'Not set';
+            document.getElementById('submitTradeType').value = document.querySelector('input[name="tradeType"]:checked').value;
+            
+            // Submit the form
+            document.getElementById('hiddenForm').submit();
+        }
+    </script>
 </body>
 </html>
