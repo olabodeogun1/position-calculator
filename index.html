@@ -54,47 +54,47 @@
     </style>
 </head>
 <body>
-    <h1>Test Submission Form</h1>
+    <h1>FX Trade Submission Test</h1>
     <form id="testForm">
         <div class="form-group">
-            <label for="date">Date</label>
-            <input type="date" id="date" required>
+            <label for="Date">Date</label>
+            <input type="date" id="Date" required>
         </div>
         
         <div class="form-group">
-            <label for="currency_pair">Currency Pair</label>
-            <input type="text" id="currency_pair" value="EURUSD" required>
+            <label for="Currency_Pair">Currency Pair</label>
+            <input type="text" id="Currency_Pair" value="EURUSD" required>
         </div>
         
         <div class="form-group">
-            <label for="lot_size">Lot Size</label>
-            <input type="number" id="lot_size" value="0.1" step="0.01" required>
+            <label for="Lot_Size">Lot Size</label>
+            <input type="number" id="Lot_Size" value="0.1" step="0.01" required>
         </div>
         
         <div class="form-group">
-            <label for="entry_price">Entry Price</label>
-            <input type="number" id="entry_price" value="1.0850" step="0.0001" required>
+            <label for="Entry_Price">Entry Price</label>
+            <input type="number" id="Entry_Price" value="1.0850" step="0.0001" required>
         </div>
         
         <div class="form-group">
-            <label for="stop_loss_price">Stop Loss Price</label>
-            <input type="number" id="stop_loss_price" value="1.0800" step="0.0001" required>
+            <label for="Stop_Loss">Stop Loss</label>
+            <input type="number" id="Stop_Loss" value="1.0800" step="0.0001" required>
         </div>
         
         <div class="form-group">
-            <label for="take_profit_price">Take Profit Price</label>
-            <input type="number" id="take_profit_price" value="1.0950" step="0.0001" required>
+            <label for="Take_Profit">Take Profit</label>
+            <input type="number" id="Take_Profit" value="1.0950" step="0.0001" required>
         </div>
         
         <div class="form-group">
-            <label for="trade_type">Trade Type</label>
-            <select id="trade_type" required>
+            <label for="Trade_Type">Trade Type</label>
+            <select id="Trade_Type" required>
                 <option value="BUY">BUY</option>
                 <option value="SELL">SELL</option>
             </select>
         </div>
         
-        <button type="submit">Test Submission</button>
+        <button type="submit">Submit to Google Sheets</button>
     </form>
     
     <div id="response"></div>
@@ -110,17 +110,14 @@
             responseDiv.className = "";
             
             try {
-                // Get current date if not filled
-                const dateValue = document.getElementById('date').value || new Date().toISOString().split('T')[0];
-                
                 const formData = {
-                    date: dateValue,
-                    currency_pair: document.getElementById('currency_pair').value,
-                    lot_size: document.getElementById('lot_size').value,
-                    entry_price: document.getElementById('entry_price').value,
-                    stop_loss_price: document.getElementById('stop_loss_price').value,
-                    take_profit_price: document.getElementById('take_profit_price').value,
-                    trade_type: document.getElementById('trade_type').value
+                    Date: document.getElementById('Date').value || new Date().toISOString().split('T')[0],
+                    Currency_Pair: document.getElementById('Currency_Pair').value,
+                    Lot_Size: document.getElementById('Lot_Size').value,
+                    Entry_Price: document.getElementById('Entry_Price').value,
+                    Stop_Loss: document.getElementById('Stop_Loss').value,
+                    Take_Profit: document.getElementById('Take_Profit').value,
+                    Trade_Type: document.getElementById('Trade_Type').value
                 };
 
                 // Add cache-busting parameter
@@ -141,6 +138,12 @@
                     const jsonResult = JSON.parse(result);
                     responseDiv.innerHTML = `✅ Success!<br>${JSON.stringify(jsonResult, null, 2)}`;
                     responseDiv.className = "success";
+                    
+                    // Clear form on success
+                    if(jsonResult.result === "success") {
+                        document.getElementById('testForm').reset();
+                        document.getElementById('Date').value = new Date().toISOString().split('T')[0];
+                    }
                 } catch {
                     responseDiv.innerHTML = `⚠️ Response (non-JSON):<br>${result}`;
                     responseDiv.className = "success";
@@ -154,7 +157,7 @@
         });
 
         // Set default date to today
-        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('Date').value = new Date().toISOString().split('T')[0];
     </script>
 </body>
 </html>
