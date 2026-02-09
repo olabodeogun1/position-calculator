@@ -465,7 +465,8 @@
         <input type="hidden" name="Take profit price" id="submitTakeProfit">
         <input type="hidden" name="Trade type" id="submitTradeType">
     </form>
-    <iframe id="submitFrame" name="submitFrame" style="display:none;"></iframe>
+    <iframe name="submitFrame" style="display:none;"></iframe>
+
     <div id="submissionModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
         <div class="modal">
             <h3 id="modalTitle">Submission sent</h3>
@@ -487,21 +488,9 @@
             return `${day}/${month}/${year}`;
         }
 
-        let pendingSubmission = false;
-
-        // Initialize date field and submission completion handler
+        // Initialize date field
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('submitDate').value = getCurrentDate();
-
-            const submitFrame = document.getElementById('submitFrame');
-            submitFrame.addEventListener('load', function() {
-                if (!pendingSubmission) {
-                    return;
-                }
-
-                pendingSubmission = false;
-                document.getElementById('submissionModal').style.display = 'flex';
-            });
         });
 
         // Show/hide instrument specific fields
@@ -689,8 +678,9 @@
             document.getElementById('submitTakeProfit').value = document.getElementById('takeProfit').value || 'Not set';
             document.getElementById('submitTradeType').value = document.querySelector('input[name="tradeType"]:checked').value;
 
-            pendingSubmission = true;
+            // Submit the form
             document.getElementById('hiddenForm').submit();
+            document.getElementById('submissionModal').style.display = 'flex';
         }
 
         function continuePreviousCalculation() {
